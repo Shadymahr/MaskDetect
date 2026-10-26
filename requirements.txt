@@ -1,0 +1,9 @@
+# Inferred from source imports; original environment versions were not supplied.
+# Not a tested lockfile. TensorFlow platform/Python compatibility must be checked.
+tensorflow
+numpy
+opencv-python
+matplotlib
+seaborn
+scikit-learn
+h5py

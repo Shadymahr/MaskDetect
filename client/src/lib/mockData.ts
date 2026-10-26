@@ -1,10 +1,10 @@
 import { subMinutes, subHours } from 'date-fns';
 
 // Stock images for simulation
-import personMask1 from '@assets/stock_images/person_wearing_a_fac_d3ceac7c.jpg';
-import personMask2 from '@assets/stock_images/person_wearing_a_fac_cc028019.jpg';
-import personNoMask1 from '@assets/stock_images/person_not_wearing_a_d36c2aa5.jpg';
-import personNoMask2 from '@assets/stock_images/person_not_wearing_a_b39ffd4a.jpg';
+import personMask1 from '@assets/stock_images/placeholder.svg';
+import personMask2 from '@assets/stock_images/placeholder.svg';
+import personNoMask1 from '@assets/stock_images/placeholder.svg';
+import personNoMask2 from '@assets/stock_images/placeholder.svg';
 
 export type DetectionEvent = {
   id: string;

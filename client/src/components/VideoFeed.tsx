@@ -55,7 +55,7 @@ export function VideoFeed() {
       {/* HUD UI */}
       <div className="absolute top-4 left-4 z-20 flex items-center gap-2">
         <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse shadow-[0_0_10px_red]" />
-        <span className="font-mono text-red-500 text-sm tracking-widest font-bold">REC • LIVE</span>
+        <span className="font-mono text-red-500 text-sm tracking-widest font-bold">LIVE PREVIEW / SIMULATED BOXES</span>
       </div>
 
       <div className="absolute top-4 right-4 z-20">
@@ -63,7 +63,7 @@ export function VideoFeed() {
       </div>
 
       <div className="absolute bottom-4 left-4 z-20 font-mono text-xs text-muted-foreground">
-        FPS: 30.02 | LATENCY: 12ms
+        Demo overlays - performance not measured
       </div>
 
       {/* Crosshairs */}

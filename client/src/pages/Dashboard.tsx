@@ -52,7 +52,7 @@ export default function Dashboard() {
           </div>
           <div>
             <h1 className="text-lg font-bold tracking-wider leading-none">SENTINEL <span className="text-primary">AI</span></h1>
-            <p className="text-[10px] font-mono text-muted-foreground tracking-[0.2em]">FACE MASK DETECTION SYSTEM</p>
+            <p className="text-[10px] font-mono text-muted-foreground tracking-[0.2em]">SIMULATION ONLY - NO MODEL INFERENCE</p>
           </div>
         </div>
 

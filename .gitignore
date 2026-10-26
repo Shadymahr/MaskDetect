@@ -1,6 +1,28 @@
-node_modules
-dist
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+# Generated environments and output
+node_modules/
+dist/
+.venv/
+venv/
+__pycache__/
+.ipynb_checkpoints/
 .DS_Store
-server/public
-vite.config.ts.*
-*.tar.gz
+# Private data and large model artifacts
+data/
+datasets/
+identities/
+*.h5
+*.keras
+*.pth
+*.pt
+*.onnx
+*.zip
+
+# Supplied reviewed checkpoint; generated checkpoints remain ignored
+!model/mask_detector.h5
+debug_frame.jpg

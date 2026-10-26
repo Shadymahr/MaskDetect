@@ -1,66 +1,95 @@
-# Face Mask Detection with TensorFlow and OpenCV
+# Real-Time Face Mask Detection
 
-University project by **Shady Nemat**, Technische Hochschule Deggendorf, Advanced Programming, January 2026.
+**University project | Advanced Programming, Group C**
 
-A Python application that trains a mask/no-mask image classifier using MobileNetV2 transfer learning and applies it to webcam face crops detected by OpenCV. A separate React dashboard demonstrates an interface with simulated events; it is not connected to the Python detector.
+**Technische Hochschule Deggendorf** · January 2026
 
-## Contents
+**Author:** Shady Nemat
 
-| Path | Purpose |
+A computer vision project exploring how transfer learning and OpenCV can be combined to classify face-mask use from webcam video. The project includes a TensorFlow training pipeline, a saved MobileNetV2 classifier, and a real-time webcam detection script.
+
+> **Academic project showcase:** this repository presents the implementation and results submitted for a university course. The React dashboard included here is a separate interface prototype; its on-screen detections and statistics are simulated and are not connected to the Python model.
+
+## Project at a glance
+
+| | |
 | --- | --- |
-| training/train_tfdata.py | TensorFlow data loading, oversampling, augmentation, training, evaluation, and plots |
-| detection/detect.py | Webcam capture, Haar face detection, and TensorFlow classification |
-| model/mask_detector.h5 | Supplied HDF5 checkpoint, approximately 13.9 MB |
-| model/class_indices.json | mask = 0, no_mask = 1 |
-| model/training_history.png | Supplied accuracy/loss curves |
-| model/confusion_matrix.png | Supplied confusion matrix |
-| sort_dataset.py | Original annotation-to-folder helper; see limitations |
-| client/, server/, shared/ | React/TypeScript simulated dashboard and Express scaffold |
-| docs/poster-public.pdf | Academic poster with student ID removed |
-| docs/verification.md | Inspection evidence, discrepancies, and execution limits |
+| **Course** | Advanced Programming, Group C |
+| **Institution** | Technische Hochschule Deggendorf |
+| **Focus** | Transfer learning, image classification, and real-time computer vision |
+| **Tools** | Python, TensorFlow/Keras, MobileNetV2, OpenCV, Haar cascades |
+| **Classes** | Mask and no mask |
+| **Input** | Webcam video |
 
-Face datasets, annotations, virtual environments, and captured webcam images are excluded.
+## What I built
 
-## Pipeline
+- A TensorFlow training pipeline using a frozen ImageNet MobileNetV2 feature extractor and a custom classification head.
+- Training data preparation with augmentation and minority-class oversampling.
+- A webcam inference script that detects faces with an OpenCV Haar cascade, classifies face crops, and overlays labels and confidence scores.
+- Training curves, a confusion-matrix artifact, and a university poster describing the project and its evaluation.
 
-Training loads 224 x 224 images with an 80/20 directory-based split and seed 42, oversamples minority classes within the training subset, and applies flipping, rotation, zoom, brightness, and contrast augmentation. Images are scaled to [0,1]. A frozen ImageNet MobileNetV2 backbone feeds global average pooling, dense layers of 256 and 128 units, dropout, and a softmax output. Adam starts at learning rate 0.0001.
+## How the system works
 
-Detection uses an OpenCV frontal-face Haar cascade, resizes face crops, converts BGR to RGB, and applies [0,1] normalization. It assigns mask only when mask probability is at least 0.80 and no lower than no-mask probability. Identity recognition is not implemented.
+1. OpenCV captures frames from the webcam and locates frontal faces with a Haar cascade.
+2. Each face crop is resized to 224 × 224, converted from BGR to RGB, and scaled to [0, 1].
+3. The MobileNetV2-based classifier estimates the mask and no-mask probabilities.
+4. The detector draws a label and confidence score over each face. It uses a 0.80 mask-confidence threshold.
 
-## Local setup
+The model predicts two classes only. It does not identify people or distinguish incorrectly worn masks.
 
-Choose a Python version supported by your TensorFlow release. Requirements are inferred from imports, unpinned, and untested; no original environment lockfile was supplied.
+## Reported results
+
+The supplied model confusion-matrix image shows 150 correct predictions among 154 examples (97.4% accuracy). It records 10/10 correct no-mask predictions. These figures are calculated from the supplied matrix; the original data split and raw predictions were not included, so I have not independently reproduced the evaluation.
+
+![Confusion matrix supplied with the project](model/confusion_matrix.png)
+
+The repository also includes training and validation accuracy/loss curves:
+
+![Training history supplied with the project](model/training_history.png)
+
+The poster contains a separate 34-image validation matrix and additional dataset and speed claims. Some values differ from the supplied 154-example matrix and from the source settings. See [verification notes](docs/verification.md) for the comparison and limits before citing results.
+
+## Repository guide
+
+- [`training/train_tfdata.py`](training/train_tfdata.py) — data loading, augmentation, training, and evaluation
+- [`detection/detect.py`](detection/detect.py) — webcam capture, face detection, and classification
+- [`model/`](model/) — supplied classifier, class mapping, and result plots
+- [`sort_dataset.py`](sort_dataset.py) — annotation-to-folder helper; read the caveats below before using
+- [`docs/poster-public.pdf`](docs/poster-public.pdf) — poster copy with student ID removed
+- [`client/`](client/) — React dashboard prototype, with simulated display data
+
+## Run the webcam detector
+
+Choose a Python version supported by the TensorFlow release you install. The supplied requirements list is inferred from source imports; it is unpinned and was not validated as a complete environment.
 
 ```sh
 python -m venv .venv
 ```
 
-Activate on Windows PowerShell:
+Activate the environment in PowerShell:
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
 ```
 
-Or on macOS/Linux:
+Or in macOS/Linux:
 
 ```sh
 source .venv/bin/activate
 ```
 
-From the repository root:
+Install the dependencies and start the webcam application from the repository root:
 
 ```sh
 python -m pip install -r requirements.txt
 python detection/detect.py
 ```
 
-The detector opens camera index 0 and an OpenCV desktop window. Press q to exit. Automatic debug-frame saving is removed in this public copy. Camera-reported FPS is a device property, not measured inference throughput.
+The script opens camera index 0 in an OpenCV window. Press `q` to exit. The FPS overlay reports the camera's property value; it is not a measurement of model inference speed. The public copy does not save webcam frames.
 
-**Verification limit:** Python syntax, class mapping, and the HDF5 file signature were checked. TensorFlow model loading, predictions, dependency installation, webcam operation, training, and web builds have not been tested during preparation.
+## Train the classifier
 
-## Training
-
-Provide data you have permission to use:
+Provide images you have permission to use in this structure:
 
 ```text
 dataset/
@@ -68,57 +97,29 @@ dataset/
   no_mask/
 ```
 
+Then run:
+
 ```sh
 python training/train_tfdata.py
 ```
 
-Training may download ImageNet backbone weights and overwrites the checkpoint, mapping, and plots under model/. Back up supplied artifacts before retraining. The script runs up to 15 epochs. The saved checkpoint is selected by best validation accuracy, whereas early stopping restores weights using validation loss and evaluates that in-memory model. The saved checkpoint and plotted matrix may therefore represent different weights.
+Training may download ImageNet weights and will replace the supplied checkpoint and plots under `model/`. Back up those artifacts before training.
 
-The original sorting helper outputs with_mask, without_mask, and mask_weared_incorrect, incompatible with the binary detector mapping. It copies entire images based only on the first XML object's label and does not crop faces. Review all annotations, create appropriate labeled crops, and handle the third class explicitly before training. Use subject/source-disjoint splits; the provided random file split does not enforce this.
+The included `sort_dataset.py` copies full images using only the first XML object's class. Its three output class names also differ from the two labels expected by the classifier. Review and crop annotations, map labels deliberately, and keep images from the same person or source together when creating evaluation splits.
 
-## Supplied results
+## Dashboard prototype
 
-![Supplied confusion matrix](model/confusion_matrix.png)
-
-The supplied matrix is [[140,4],[0,10]], with actual classes on rows and predicted classes on columns:
-
-| Metric | Calculated from the image |
-| --- | --- |
-| Samples | 154 |
-| Accuracy | 150/154 = 97.40% |
-| Mask recall | 140/144 = 97.22% |
-| No-mask recall | 10/10 = 100% |
-| No-mask precision | 10/14 = 71.43% |
-| No-mask F1 | 20/24 = 83.33% |
-
-These calculations are not a reproduced evaluation. It is unknown whether these are held-out images. Their totals match class counts in the poster, while the poster separately describes a different 34-image validation matrix. Raw predictions, split manifests, and numeric histories were not supplied. Ten no-mask examples do not establish generalization.
-
-![Supplied training history](model/training_history.png)
-
-The supplied history shows 15 plotted epochs, unlike the [nine-epoch presentation illustration](docs/training_accuracy.png). Poster dataset totals, stopping claims, and 25–29 FPS claims remain unresolved. Read the [verification notes](docs/verification.md) before citing results.
-
-## Optional dashboard
-
-With Node.js 22.12+ and npm:
+The repository also includes a React/TypeScript dashboard concept. To start its frontend with Node.js 22.12 or newer:
 
 ```sh
 npm ci
 npm run dev:client
 ```
 
-Open the localhost address printed by Vite (configured port 5000). Webcam boxes, confidence values, events, and charts are random simulations. Settings do not invoke Python inference. Stock photos of uncertain provenance were replaced with an original neutral SVG, and simulation labels were added. Fonts load from Google Fonts. The frontend is untested during preparation; full-stack scripts use POSIX environment syntax and need adaptation for PowerShell.
+The webcam preview is real, but its detection boxes, identities, confidence scores, event stream, and charts are randomly simulated. The dashboard does not call the Python model. This UI is included as a prototype companion to the academic project, not as a live inference result.
 
-## Known limitations
+## Limitations and reproducibility
 
-- MobileNetV2 preprocessing uses [0,1] consistently in this source rather than its standard preprocessing convention; changing it requires retraining and validation.
-- Class weights are computed after equal-count oversampling, yielding equal weights.
-- RandomRotation(0.2) allows roughly ±72 degrees, differing from the poster's ±20 degrees.
-- Early-stopping patience is five in source, versus three in the poster.
-- Camera FPS does not benchmark end-to-end inference.
-- Saved checkpoint, evaluation weights, and plots need a documented common run identifier.
+The submitted model and source are included, but I have not established that the supplied plots, checkpoint, and poster were produced by one identical run. The poster and code also differ on sample counts, stopping patience, augmentation, and face size. TensorFlow model loading, dependency installation, webcam inference, and training have not been verified as part of preparing this repository. Full details are in [`docs/verification.md`](docs/verification.md).
 
-## Privacy and rights
-
-Private datasets, webcam debug images, environments, and obvious secrets are excluded. The poster student-ID line is removed in a rasterized public copy; original academic claims remain intact and qualified here.
-
-No new license is granted by this preparation. The dashboard package metadata says MIT, but no accompanying project license text was supplied. Confirm publishing rights for source, checkpoint, and poster; dependencies and institutional marks retain their respective terms. Dataset redistribution is outside this package.
+The face dataset and annotations are not included. No dataset redistribution permission or separate project license text was supplied. The poster's student-ID line has been removed from the public copy; university marks and third-party components remain subject to their owners' terms.
